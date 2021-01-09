@@ -12,8 +12,8 @@ export default new Router({
       component: () => import('@/components/homePage') 
     },
     {
-      path: '/test',      
-      component: () => import('@/components/test') 
+      path: '/intervalWaterConsumption',      
+      component: () => import('@/components/intervalWaterConsumption') 
     },
    
   ]
