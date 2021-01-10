@@ -106,7 +106,6 @@ export default {
       var year1_1 = Number(year1)
       var month1_1 = Number(month1)
       var day1_1 = Number(day1)
-
       // file name
       var file1 = fileName(date1)
 
@@ -128,25 +127,6 @@ export default {
         
       // }
 
-      fetch(file1)
-      .then(res => res.json())      
-      .then(contents => {
-        this.$set(this.dataJson, 'data', [])
-        this.dataJson.data.splice(0, this.dataJson.data.length)
-        contents.data.forEach(content => {
-        this.dataJson.data.splice(this.dataJson.data.length, 0, content)
-
-        this.$set(this.dataJson, 'data', 0) // 這樣可以修改
-
-
-
-
-
-
-
-        })
-      })
-
       // 查詢結束日期 #################################
       var year2 = String(date2).slice(0,4)
       var month2 = String(date2).slice(5,7)
@@ -160,6 +140,37 @@ export default {
       // todo: 同月份資料
       // todo: 同一年資料
       // todo: 不同年資料
+      
+
+
+
+
+
+
+      fetch(file1)
+      .then(res => res.json())      
+      .then(contents => {
+        this.$set(this.dataJson, 'data', [])
+        this.dataJson.data.splice(0, this.dataJson.data.length)
+        contents.data.forEach(content => {
+        this.dataJson.data.splice(this.dataJson.data.length, 0, content)
+        // this.$set(this.dataJson.data, 0, 
+        //   {id: this.dataJson.data[0].id, value: this.dataJson.data[0].value}) 
+        
+        })
+
+
+        this.dataJson.data[0].value = this.dataJson.data[0].value+1
+
+
+
+
+
+
+
+      })
+
+      
 
 
      
