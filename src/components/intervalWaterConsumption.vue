@@ -13,41 +13,47 @@
       id="input2"
       v-model="input2" 
       placeholder="請輸入日期 (yyyy-mm-dd)"
-      @keyup.enter="getEachDayData(input1)"
+      @keyup.enter="getIntervalData(input1, input2)"
     >
-    <button @click="getEachDayData(input1)">確定</button>
-
-
-
-
-
+    
+    <!-- <button @click="getEachDayData(input1)">確定</button> -->
+    <button @click="getIntervalData(input1, input2)">確定</button>
 
     <!-- todo: 清除 -->
     <!-- <button @click="input1=''">清除</button> -->
-        
-    <!-- table -->
-    <table>
-      <thead>
-        <tr class='thColor'>
-          <th>寢號</th>
-          <th>用水度數</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="(item, i) in dataJson.data" :key="i">          
-          <th>{{dataJson.data[i].id}}</th>
-          <td>{{dataJson.data[i].value}}</td>
-        </tr>
-      </tbody>
-    </table>
 
+    <p>{{dataJson}}</p>
+    <!-- table -->
+    <!-- <div v-if="ifShow">      
+      <table>
+        <thead>
+          <tr class='thColor'>
+            <th>寢號</th>
+            <th>用水度數</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="(item, i) in dataJson.data" :key="i">          
+            <th>{{dataJson.data[i].id}}</th>
+            <td>{{dataJson.data[i].value}}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div> -->
+
+    
+    
+
+    
 
   </div>
 </template>
 
 <!-- script ##################################### -->
 <script>
-function fileName(date){
+// import Vue from 'vue'
+
+function fileName(date){  
   // year
   var year = String(date).slice(0,4)
   // month
@@ -56,83 +62,117 @@ function fileName(date){
   // day
   var day = String(date).slice(8,10)
   // path of file
-  var date1 = '../../static/師大學七用水紀錄/' +
+  var file1 = '../../static/師大學七用水紀錄/' +
     year + '/' + 
     month_p + '月/daily_data_for_each_room/' + 
     year+'-'+month+'-'+day+ 
     '的用水記錄(calibrated).json'
 
-  return date1
+  return file1
 }
 
 export default {
   data() {
     return {      
-      dataJson: [],
-      dataJson2: [],
+      dataJson: {data:[]},
+      dataJson2: {data:[]},
       input1: '', // 輸入開始日期
-      input2: '', // 輸入結束日期
+      input2: '', // 輸入結束日期      
+      ifShow: false,
             
     };
   },     
 
-  methods: {    
-    getEachDayData(date){     
-      var year1 = Number(String(date1).slice(0,4))
-      var month1 = Number(String(date1).slice(5,7))
-      var day1 = Number(String(date1).slice(8,10))
-      
+  computed: {        
 
+  },
 
-      var date1 = fileName(date)
+  methods: {        
+    getEachDayData(date){           
+      var file1 = fileName(date)
 
-      fetch(date1)
+      fetch(file1)
       .then(res => res.json())      
       .then(contents => this.dataJson = contents)      
     },
     
     getIntervalData(date1, date2){
+      this.ifShow = true
       // 查詢開始日期 #################################
-      var year1 = Number(String(date1).slice(0,4))
-      var month1 = Number(String(date1).slice(5,7))
-      var day1 = Number(String(date1).slice(8,10))
+      var year1 = String(date1).slice(0,4)
+      var month1 = String(date1).slice(5,7)
+      var day1 = String(date1).slice(8,10)
+
+      var year1_1 = Number(year1)
+      var month1_1 = Number(month1)
+      var day1_1 = Number(day1)
+
       // file name
       var file1 = fileName(date1)
+
       // get file
+      // fetch(file1)
+      // .then(res => res.json())      
+      // .then(contents => this.dataJson = contents)    
+
+      // fetch(file1)
+      // .then(res => res.json())      
+      // .then(contents => {
+      //   this.dataJson.data.splice(0, this.dataJson.length)
+      //   contents.data.forEach(content => {
+      //   this.dataJson.data.splice(this.dataJson.length, 0, content)        
+      //   })
+      // })    
+      // for (var i=0; i<250; i++){
+      //   this.dataJson2.data[i] = Object.assign({}, this.dataJson.data[i])
+        
+      // }
+
       fetch(file1)
       .then(res => res.json())      
-      .then(contents => this.dataJson = contents)    
-      
-      // 查詢結束日期 #################################
-      var year2 = Number(String(date2).slice(0,4))
-      var month2 = Number(String(date2).slice(5,7))
-      var day2 = Number(String(date2).slice(8,10))
+      .then(contents => {
+        this.$set(this.dataJson, 'data', [])
+        this.dataJson.data.splice(0, this.dataJson.data.length)
+        contents.data.forEach(content => {
+        this.dataJson.data.splice(this.dataJson.data.length, 0, content)
 
+        this.$set(this.dataJson, 'data', 0) // 這樣可以修改
+
+
+
+
+
+
+
+        })
+      })
+
+      // 查詢結束日期 #################################
+      var year2 = String(date2).slice(0,4)
+      var month2 = String(date2).slice(5,7)
+      var day2 = String(date2).slice(8,10)
+
+      var year2_1 = Number(year2)
+      var month2_1 = Number(month2)
+      var day2_1 = Number(day2)
+      
       // 資料加總 #################################
       // todo: 同月份資料
       // todo: 同一年資料
       // todo: 不同年資料
-      
-      // for(var i=day1+1; i<=day2; i++){
-      //   var file2 = fileName(date1)
-
-      // }
 
 
-
-
-
-
+     
 
       
-      
-
-
+    
     },
 
     nextPlease: function (event) {
         document.getElementById('input2').focus();
     },
+
+    
 
   }
   
