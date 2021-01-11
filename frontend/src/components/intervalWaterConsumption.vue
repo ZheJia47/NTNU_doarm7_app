@@ -21,10 +21,9 @@
 
     <!-- todo: 清除 -->
     <!-- <button @click="input1=''">清除</button> -->
-
-    <p>{{dataJson}}</p>
+    
     <!-- table -->
-    <!-- <div v-if="ifShow">      
+    <div v-if="ifShow">            
       <table>
         <thead>
           <tr class='thColor'>
@@ -39,13 +38,12 @@
           </tr>
         </tbody>
       </table>
-    </div> -->
+    </div>
 
     
     
 
     
-
   </div>
 </template>
 
@@ -75,7 +73,7 @@ export default {
   data() {
     return {      
       dataJson: {data:[]},
-      dataJson2: {data:[]},
+      dataJson2: {data:[]},      
       input1: '', // 輸入開始日期
       input2: '', // 輸入結束日期      
       ifShow: false,
@@ -90,13 +88,14 @@ export default {
   methods: {        
     getEachDayData(date){           
       var file1 = fileName(date)
-
       fetch(file1)
       .then(res => res.json())      
       .then(contents => this.dataJson = contents)      
     },
     
     getIntervalData(date1, date2){
+      this.$set(this.dataJson, 'data', [])  // 清空 dataJson
+      
       this.ifShow = true
       // 查詢開始日期 #################################
       var year1 = String(date1).slice(0,4)
@@ -105,28 +104,9 @@ export default {
 
       var year1_1 = Number(year1)
       var month1_1 = Number(month1)
-      var day1_1 = Number(day1)
-      // file name
+      var day1_1 = Number(day1)            
       var file1 = fileName(date1)
-
-      // get file
-      // fetch(file1)
-      // .then(res => res.json())      
-      // .then(contents => this.dataJson = contents)    
-
-      // fetch(file1)
-      // .then(res => res.json())      
-      // .then(contents => {
-      //   this.dataJson.data.splice(0, this.dataJson.length)
-      //   contents.data.forEach(content => {
-      //   this.dataJson.data.splice(this.dataJson.length, 0, content)        
-      //   })
-      // })    
-      // for (var i=0; i<250; i++){
-      //   this.dataJson2.data[i] = Object.assign({}, this.dataJson.data[i])
-        
-      // }
-
+      
       // 查詢結束日期 #################################
       var year2 = String(date2).slice(0,4)
       var month2 = String(date2).slice(5,7)
@@ -134,56 +114,64 @@ export default {
 
       var year2_1 = Number(year2)
       var month2_1 = Number(month2)
-      var day2_1 = Number(day2)
+      var day2_1 = Number(day2)      
+      var file2 = ''
       
-      // 資料加總 #################################
-      // todo: 同月份資料
+      // 資料加總 #################################      
       // todo: 同一年資料
       // todo: 不同年資料
       
-
-
-
-
-
-
       fetch(file1)
       .then(res => res.json())      
-      .then(contents => {
-        this.$set(this.dataJson, 'data', [])
+      .then(contents => {        
+        // this.$set(this.dataJson, 'data', []) // 清空 dataJson
         this.dataJson.data.splice(0, this.dataJson.data.length)
+        // forEach
         contents.data.forEach(content => {
-        this.dataJson.data.splice(this.dataJson.data.length, 0, content)
-        // this.$set(this.dataJson.data, 0, 
-        //   {id: this.dataJson.data[0].id, value: this.dataJson.data[0].value}) 
+          this.dataJson.data.splice(this.dataJson.data.length, 0, content)        
+        })        
         
-        })
+        // 多日資料相加        
+        if(day2_1 > day1_1 && day2_1 < 31){ // 確保結束日期大於開始日期 & 結束日合理
+          for (var iday=day1_1; iday<day2_1; iday++){                              
+            var day_next = iday+1
+            if(day_next<10) day_next = '0' + String(iday) 
+            else day_next = String(iday) 
 
+            var date_next = year1 + '-' + month1 + '-' + day_next
+            file2 = fileName(date_next)
 
-        this.dataJson.data[0].value = this.dataJson.data[0].value+1
+            // get file2 #################
+              fetch(file2)
+              .then(res => res.json())      
+              .then(contents2 => {                        
+                this.$set(this.dataJson2, 'data', [])  // 清空 dataJson2
+                this.dataJson2.data.splice(0, this.dataJson2.data.length)
+                // forEach
+                contents2.data.forEach(content2 => {
+                this.dataJson2.data.splice(this.dataJson2.data.length, 0, content2)        
+                })                 
+              })
 
-
-
-
-
-
-
+              // 兩個檔案資料加總           
+              for (var i=0; i<250; i++) {              
+                var v1 = this.dataJson.data[i].value + 
+                  this.dataJson2.data[i].value
+                
+                this.$set(this.dataJson.data[i],'value',v1)              
+              }
+              
+          }
+        }
+        
+               
       })
-
       
-
-
-     
-
-      
-    
     },
 
     nextPlease: function (event) {
         document.getElementById('input2').focus();
     },
-
-    
 
   }
   
