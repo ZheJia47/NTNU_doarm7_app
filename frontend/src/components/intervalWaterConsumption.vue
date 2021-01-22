@@ -93,10 +93,8 @@ export default {
       .then(contents => this.dataJson = contents)      
     },
     
-    getIntervalData(date1, date2){
-      this.$set(this.dataJson, 'data', [])  // 清空 dataJson
-      
-      this.ifShow = true
+    getIntervalData(date1, date2){      
+      this.$set(this.dataJson, 'data', [])  // 清空 dataJson            
       // 查詢開始日期 #################################
       var year1 = String(date1).slice(0,4)
       var month1 = String(date1).slice(5,7)
@@ -115,60 +113,71 @@ export default {
       var year2_1 = Number(year2)
       var month2_1 = Number(month2)
       var day2_1 = Number(day2)      
-      var file2 = ''
       
       // 資料加總 #################################      
       // todo: 同一年資料
       // todo: 不同年資料
       
-      fetch(file1)
-      .then(res => res.json())      
-      .then(contents => {        
-        // this.$set(this.dataJson, 'data', []) // 清空 dataJson
-        this.dataJson.data.splice(0, this.dataJson.data.length)
-        // forEach
-        contents.data.forEach(content => {
-          this.dataJson.data.splice(this.dataJson.data.length, 0, content)        
-        })        
+      var itimes=1
+      if(day2_1 >= day1_1 && day2_1 < 31){ // 確保結束日期大於開始日期 & 結束日合理
+        for (var iday=day1_1; iday<day2_1; iday++){        
+          itimes++                      
+          var day_next = iday+1
+          
+          if(day_next<10) day_next = '0' + String(day_next) 
+          else day_next = String(day_next) 
+          
+          var date_next = year1 + '-' + month1 + '-' + day_next
+          var file2 = fileName(date_next)            
+
+          // get file2 #################
+          fetch(file2)
+          .then(res => res.json())      
+          .then(contents2 => {                        
+            this.$set(this.dataJson2, 'data', [])  // 清空 dataJson2
+            this.dataJson2.data.splice(0, this.dataJson2.data.length)
+
+            contents2.data.forEach(content2 => {
+              this.dataJson2.data.splice(this.dataJson2.data.length, 0, content2)        
+            })                 
+          })
+
+          // 第一筆資料          
+          fetch(file1)
+          .then(res => res.json())      
+          .then(contents => {             
+            
+            contents.data.forEach(content => {
+              this.dataJson.data.splice(this.dataJson.data.length, 0, content)        
+            })        
         
-        // 多日資料相加        
-        if(day2_1 > day1_1 && day2_1 < 31){ // 確保結束日期大於開始日期 & 結束日合理
-          for (var iday=day1_1; iday<day2_1; iday++){                              
-            var day_next = iday+1
-            if(day_next<10) day_next = '0' + String(iday) 
-            else day_next = String(iday) 
-
-            var date_next = year1 + '-' + month1 + '-' + day_next
-            file2 = fileName(date_next)
-
-            // get file2 #################
-              fetch(file2)
-              .then(res => res.json())      
-              .then(contents2 => {                        
-                this.$set(this.dataJson2, 'data', [])  // 清空 dataJson2
-                this.dataJson2.data.splice(0, this.dataJson2.data.length)
-                // forEach
-                contents2.data.forEach(content2 => {
-                this.dataJson2.data.splice(this.dataJson2.data.length, 0, content2)        
-                })                 
-              })
-
-              // 兩個檔案資料加總           
+            // 多日資料相加                
+            // 兩個檔案資料加總
+            if(itimes>1){
+              console.log(this.dataJson2.data[0].value)           
               for (var i=0; i<250; i++) {              
                 var v1 = this.dataJson.data[i].value + 
                   this.dataJson2.data[i].value
                 
                 this.$set(this.dataJson.data[i],'value',v1)              
               }
-              
-          }
-        }
-        
-               
-      })
-      
-    },
+            }
+            
+                                                  
+          })
 
+
+                   
+        }
+      }
+
+
+      this.$nextTick(() => {
+        this.ifShow = true
+      })      
+
+    },
+   
     nextPlease: function (event) {
         document.getElementById('input2').focus();
     },
